@@ -1,6 +1,7 @@
 -- explore.sql ("interview the data")
 -- The intent here is to understand the structure of the database, and the columns within the table.
--- To answer these questions, you might have to use commands in the SQLite3 shell (Terminal), SQL queries or just observe the data.
+-- To answer these questions, you might have to use commands in the SQLite3 shell (Terminal), SQL queries
+-- or observe the data using the SQLite Viewer extension.
 
 -- Question 1: What tables are in this database?
 
