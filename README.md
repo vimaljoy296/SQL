@@ -1,4 +1,4 @@
-# SQL and Databases and REST
+# SQL and Databases
 This is the place where the codealong code, assignments and sample project live! You should "clone" this GitHub repository into your own account. Then, open a CodeSpace to start working with these files directly.
 
 ## SQLite3 Tips
