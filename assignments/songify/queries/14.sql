@@ -1,1 +1,0 @@
--- Question 14: Which unique record labels are featured in this list?
