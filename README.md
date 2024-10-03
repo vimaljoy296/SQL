@@ -12,10 +12,6 @@ Develop your SQL skills by creating tables, inserting data, and writing queries.
 3. **Introduction to REST APIs**
 Get an introduction to RESTful APIs and learn how to use Python's Flask library to create basic APIs that interact with your database.
 
-## Course Plan
-Here is the course plan broken down week by week, so you get an idea of what to expect.
-![Course Plan per Week](course_plan.png)
-
 ## This GitHub Repository
 The code for the codealongs, assignments and sample project live here! You should "clone" this GitHub repository into your own account. Then, open a CodeSpace to start working with these files directly.
 
