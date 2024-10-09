@@ -1,91 +1,79 @@
 -- Keep a log of any SQL queries you execute as you solve the mystery.
 
+-- Display the schema to understand the database structure
 .schema
 .headers on
 .mode column
 
--- #initially i understood that i decided to check whats there in the decsription on this specified date , since i get to know that there will be a clue has been hidden in this.
--- so i started working on this 
--- # analysed the crime_scene_reports
--- SELECT description
--- FROM crime_scene_reports 
--- WHERE street = 'Humphrey Street' AND day = 28;
+-- INITIAL ANALYSIS: Checking what's in the description on a specified date, as I understand there's a clue hidden there.
+-- ANALYZING THE CRIME SCENE REPORTS
+SELECT description
+FROM crime_scene_reports 
+WHERE street = 'Humphrey Street' AND day = 28;
 
--- now i get to know 3 witness see whp were present at the time for the interview so i decided to analyse whats there in the interview transcript.on that particular dat
--- Step 2: Analyze the interviews to find clues about the thief
--- SELECT transcript
--- FROM interviews
--- WHERE day = 28 and month ='7' and year = 2023;
+-- I now know three witnesses were present, so I decide to analyze what's in the interview transcript for that specific day.
+-- STEP 2: Analyze the interviews to find clues about the thief
+SELECT transcript
+FROM interviews
+WHERE day = 28 AND month = 7 AND year = 2023;
 
--- clues which i got
+-- Clues found from the witness statements:
+-- 1. As the thief was leaving the bakery, they made a phone call. The conversation lasted less than a minute.
+--    I overheard the thief say they were planning to take the earliest flight out of Fiftyville the next day.
+--    The thief also asked the person on the other end to purchase the flight ticket.
 
---1. As the thief was leaving the bakery, they called someone who
---  talked to them for less than a minute. In the call, I heard
---  the thief say that they were planning to take the earliest 
--- flight out of Fiftyville tomorrow. The thief then asked the 
--- person on the other end of the phone to purchase the flight 
--- ticket.                                                     
+-- 2. Although I don't know the thief's name, I recognize them. Earlier this morning, I saw the thief
+--    withdrawing money from an ATM on Leggett Street.
 
--- 2.I don't know the thief's name, but it was someone I recogniz
--- ed. Earlier this morning, before I arrived at Emma's bakery,
---  I was walking by the ATM on Leggett Street and saw the thie
--- f there withdrawing some money.    
+-- 3. Within ten minutes of the theft, I saw the thief get into a car in the bakery parking lot and drive away.
+--    Security footage from the bakery parking lot during this time might show the cars that left.
 
--- 3.Sometime within ten minutes of the theft, I saw the thief ge
--- t into a car in the bakery parking lot and drive away. If yo
--- u have security footage from the bakery parking lot, you mig
--- ht want to look for cars that left the parking lot in that t
--- ime frame.  
+-- CHECKING ATM TRANSACTIONS TO IDENTIFY WHO WITHDREW MONEY AT LEGGETT STREET ON THAT DAY
+SELECT *
+FROM atm_transactions
+WHERE atm_location = 'Leggett Street' 
+AND day = 28 AND month = 7 AND year = 2023 AND transaction_type = 'withdraw';
 
--- select *
--- from atm_transactions
--- where atm_location = 'Leggett Street' 
--- -- i undertsood that there no name like humphrey stree instead of that lane is there 
--- and day = 28 and month = 7 and year = 2023 and transaction_type = 'withdraw';
+-- UNDERSTANDING THAT HUMPHREY STREET IS NOT PRESENT BUT 'LANE' IS USED INSTEAD.
+-- I now proceed to the bank account information to obtain the name and account number of the person who withdrew the money.
 
--- now i uderstood that there are some people withdraw the money so now iam going to bank account for getting name of the persona nd the account number .
+SELECT person_id, account_number
+FROM bank_accounts
+WHERE account_number IN (
+    SELECT account_number
+    FROM atm_transactions
+    WHERE atm_location = 'Leggett Street'
+    AND day = 28 AND month = 7 AND year = 2023 AND transaction_type = 'withdraw'
+);
 
--- select person_id , account_number
--- from bank_accounts
--- where account_number in (
--- select account_number
--- from atm_transactions
--- where atm_location = 'Leggett Street'
--- and day = 28 and month = 7 and year = 2023 and transaction_type = 'withdraw'
--- );
+-- I HAVE THE PERSON ID, SO NOW I WILL USE THE PEOPLE TABLE TO FIND THE PERSON'S NAME USING THE PERSON ID.
+SELECT id, name
+FROM people
+WHERE id IN (
+    SELECT person_id
+    FROM bank_accounts
+    WHERE account_number IN (
+        SELECT account_number
+        FROM atm_transactions
+        WHERE atm_location = 'Leggett Street'
+        AND day = 28 AND month = 7 AND year = 2023 AND transaction_type = 'withdraw'
+    )
+);
 
--- now i got the person_id ,so from people table iam going to find the persons name using people id.
+-- WITH THE NAME AND ID IN HAND, AND A CLUE INDICATING THAT A FLIGHT TICKET WAS PURCHASED FOR TOMORROW,
+-- I NOW CHECK FLIGHTS ON THE NEXT DAY (JULY 29, 2023).
+SELECT *
+FROM flights
+WHERE day = 29 AND month = 7 AND year = 2023;
 
--- select id,name
--- from people
--- where id in(
---     select person_id
---     from bank_accounts
---     where account_number in (
---         select account_number
---         from atm_transactions
---         where atm_location = 'Leggett Street'
---         and day = 28 and month = 7 and year = 2023 and transaction_type = 'withdraw'
---     )
--- )
--- ;
+-- FIVE FLIGHTS ARE SCHEDULED FOR THE NEXT DAY. BASED ON THE CLUE, THE THIEF IS CATCHING THE EARLIEST FLIGHT.
+-- I WILL ORDER THE FLIGHTS BY DEPARTURE TIME TO FIND THE EARLIEST FLIGHT.
+SELECT id, year, month, day, hour, minute
+FROM flights
+WHERE day = 29 AND month = 7 AND year = 2023 
+ORDER BY hour ASC
+LIMIT 1;
 
--- now i got the name and id . since one of the clue is telling that they purchase a fligh ticket tommorw
-
--- select *
--- from flights
--- where day = 29 and month = 7 and year = 2023;
-
--- now i understood there 5v flights are charte dto going tommorow.
--- from that clue its telling tehy are catching the earliest flight so iam moving towards the table flight
- 
-select id,year,month,day,hour,minute
-from flights
-where day = 29 and month = 7 and year = 2023 
-order by hour asc
-limit 1;
-
--- flight id to passport number using passenger table
--- then we connect passenger to people table 
--- from that we will get a list of names 
-
+-- IDENTIFYING THE FLIGHT ID TO MATCH WITH A PASSPORT NUMBER IN THE PASSENGER TABLE.
+-- I THEN CONNECT THE PASSENGER TO THE PEOPLE TABLE TO OBTAIN A LIST OF NAMES.
+-- THEN I WILL GET THE PASSENGER DETAILS WITH NAME AND ID .
